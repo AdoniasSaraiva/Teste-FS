@@ -1,113 +1,8 @@
 ﻿$(document).ready(function () {
-
     AddCliente();
     AddMascaraCPF();
     ConsultaClientePorCampoCPF();
-    ValidaCampoNome();
 })
-
-function ModalDialog(titulo, texto) {
-    var random = Math.random().toString().replace('.', '');
-    var texto = '<div id="' + random + '" class="modal fade">                                                               ' +
-        '        <div class="modal-dialog">                                                                                 ' +
-        '            <div class="modal-content">                                                                            ' +
-        '                <div class="modal-header">                                                                         ' +
-        '                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>         ' +
-        '                    <h4 class="modal-title">' + titulo + '</h4>                                                    ' +
-        '                </div>                                                                                             ' +
-        '                <div class="modal-body">                                                                           ' +
-        '                    <p>' + texto + '</p>                                                                           ' +
-        '                </div>                                                                                             ' +
-        '                <div class="modal-footer">                                                                         ' +
-        '                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>             ' +
-        '                                                                                                                   ' +
-        '                </div>                                                                                             ' +
-        '            </div><!-- /.modal-content -->                                                                         ' +
-        '  </div><!-- /.modal-dialog -->                                                                                    ' +
-        '</div> <!-- /.modal -->                                                                                        ';
-
-    $('body').append(texto);
-    $('#' + random).modal('show');
-}
-
-
-function ModalEscolhaBeneficiario(cpf, clientId) {
-
-    var random = Math.random().toString().replace('.', '');
-
-    var html = `
-        <div id="${random}" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h4 class="modal-title">Beneficiário já cadastrado</h4>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p>
-                            Este cliente ${cpf} já possui cadastro.
-                            Deseja alterar os dados cadastrais
-                            ou incluir um novo beneficiário?
-                        </p>
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <button type="button"
-                                onclick="window.location.href='/Cliente/Alterar/${clientId}'"
-                                class="btn btn-primary"
-                                id="btnAlterarCadastro">
-                            Alterar Cadastro
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-success"
-                                id="btnNovoBeneficiario">
-                            Incluir Novo Beneficiário
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-default"
-                                data-dismiss="modal">
-                            Cancelar
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-        </div>`;
-
-    $('body').append(html);
-
-    var modal = $('#' + random);
-
-    modal.modal('show');
-
-    modal.find('#btnAlterarCadastro').on('click', function () {
-
-        modal.modal('hide');
-
-        console.log('Alterar cadastro do cliente');
-
-    });
-
-    modal.find('#btnNovoBeneficiario').on('click', function () {
-
-        modal.modal('hide');
-
-        console.log('Incluir novo beneficiário');
-
-    });
-
-    modal.on('hidden.bs.modal', function () {
-        modal.remove();
-    });
-}
 
 function AddCliente() {
     $('#formCadastro').submit(function (e) {
@@ -116,10 +11,16 @@ function AddCliente() {
         var $form = $(this);
 
         var cpfSemMascara = removerMascaraCPF($form.find('#CPF').val());
+
+        if (!validarCPF(cpfSemMascara)) {
+            ModalDialog("CPF Invalido", "Por favor, informe um CPF valido.");
+            $('#formCadastro #CPF').val('');
+            return;
+        }
+
         $form.find('#CPF').val(cpfSemMascara);
 
         var formData = new FormData($form[0]);
-
 
         if (typeof beneficiarios !== 'undefined' && beneficiarios.length > 0) {
             for (var i = 0; i < beneficiarios.length; i++) {
@@ -165,7 +66,6 @@ function AddMascaraCPF() {
     });
 }
 
-
 function ConsultaClientePorCampoCPF() {
     $('#CPF').on('blur', function () {
         var cpf = $(this).val();
@@ -190,21 +90,5 @@ function ConsultaClientePorCampoCPF() {
             }
         });
 
-    });
-}
-
-function ValidaCampoNome()
-{
-    $('#formCadastro #Nome').on('blur', function () {
-        var nome = $(this).val();
-        if ((nome || nome.trim() !== "")
-            && !/^[A-Za-zÀ-ÿ\s]+$/.test(nome)) {
-            ModalDialog(
-                "Nome inválido",
-                "O nome deve conter apenas letras."
-            );
-
-        }
-        return;
     });
 }

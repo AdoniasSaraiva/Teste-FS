@@ -21,7 +21,7 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label for="CPF">CPF:</label>
-                <input required="required" type="text" class="form-control" id="CPF" name="CPF" placeholder="Ex.: 010.011.111-00" maxlength="14" @(Model?.Id > 0 ? "disabled='disabled'" : "")>
+                <input required="required" type="text" class="form-control" id="CPF" name="CPF" placeholder="Ex.: 010.011.111-00" maxlength="14">
             </div>
         </div>
 
@@ -101,4 +101,5 @@
 
 <script src="~/Scripts/jquery-3.4.1.min.js"></script>
 <script src="~/Scripts/bootstrap.min.js"></script>
-<script src="~/Scripts/Clientes/FI.Beneficiario.js"></script>
+<script src="~/Scripts/Beneficiario/FI.Beneficiario.js"></script>
+<script src="~/Scripts/Utils/FI.Utils.js"></script>

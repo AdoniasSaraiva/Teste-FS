@@ -1,9 +1,9 @@
-﻿
+﻿var cpfEditando = '';
 $(document).ready(function () {
     if (obj) {
         $('#formCadastro #Nome').val(obj.Nome);
         $('#formCadastro #CEP').val(obj.CEP);
-        $('#formCadastro #CPF').val(obj.CPF);
+        $('#formCadastro #CPF').val(formatarCPF(obj.CPF));
         $('#formCadastro #Email').val(obj.Email);
         $('#formCadastro #Sobrenome').val(obj.Sobrenome);
         $('#formCadastro #Nacionalidade').val(obj.Nacionalidade);
@@ -11,6 +11,8 @@ $(document).ready(function () {
         $('#formCadastro #Cidade').val(obj.Cidade);
         $('#formCadastro #Logradouro').val(obj.Logradouro);
         $('#formCadastro #Telefone').val(obj.Telefone);
+
+        cpfEditando = obj.CPF;
 
         if (obj.Beneficiarios != null && obj.Beneficiarios.length > 0) {
             beneficiariosExistentes = obj.Beneficiarios.map(function (b) {
@@ -28,31 +30,8 @@ $(document).ready(function () {
     }
 
     AlterarCliente();
+    ConsultaClientePorCampoCPFEditar();
 })
-
-function ModalDialog(titulo, texto) {
-    var random = Math.random().toString().replace('.', '');
-    var texto = '<div id="' + random + '" class="modal fade">                                                               ' +
-        '        <div class="modal-dialog">                                                                                 ' +
-        '            <div class="modal-content">                                                                            ' +
-        '                <div class="modal-header">                                                                         ' +
-        '                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>         ' +
-        '                    <h4 class="modal-title">' + titulo + '</h4>                                                    ' +
-        '                </div>                                                                                             ' +
-        '                <div class="modal-body">                                                                           ' +
-        '                    <p>' + texto + '</p>                                                                           ' +
-        '                </div>                                                                                             ' +
-        '                <div class="modal-footer">                                                                         ' +
-        '                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>             ' +
-        '                                                                                                                   ' +
-        '                </div>                                                                                             ' +
-        '            </div><!-- /.modal-content -->                                                                         ' +
-        '  </div><!-- /.modal-dialog -->                                                                                    ' +
-        '</div> <!-- /.modal -->                                                                                        ';
-
-    $('body').append(texto);
-    $('#' + random).modal('show');
-}
 
 function AlterarCliente()
 {
@@ -65,6 +44,7 @@ function AlterarCliente()
         $form.find('#CPF').val(cpfSemMascara);
 
         var formData = new FormData();
+
         formData.append("Id", idCliente);
         formData.append("NOME", $form.find("#Nome").val());
         formData.append("CEP", $form.find("#CEP").val());
@@ -108,4 +88,37 @@ function AlterarCliente()
                 }
         });
     })
+}
+
+function ConsultaClientePorCampoCPFEditar() {
+    $('#CPF').on('blur', function () {
+        var cpf = $(this).val();
+        cpf = removerMascaraCPF(cpf);
+        if (!cpf) {
+            return;
+        }
+
+        if (cpfEditando == cpf) {
+            return;
+        }
+
+
+        $.ajax({
+            url: '/Cliente/CpfClienteExiste',
+            type: 'GET',
+            data: { cpf: cpf.replace(/\D/g, '') },
+
+            success: function (response) {
+
+                if (response.existe) {
+                    ModalDialog("CPF Existe", "Este CPF já está cadastrado");
+                    $('#formCadastro #CPF').val('');
+                }
+            },
+            error: function (xhr) {
+                console.error('Erro ao consultar cliente:', xhr);
+            }
+        });
+
+    });
 }
